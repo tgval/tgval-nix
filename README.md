@@ -1,12 +1,125 @@
-# tgval-nix
-My NixOS + dotfiles setup
+# NixOS Multi-Machine Configuration
 
---flake .#tgval-legion - Old Lenovo Legion compatible config
---flake .#tgval-x1nano - Lenovo Thinkpad X1 Nano config
---flake .#tgval-tuxedo - Tuxedo Infinity Book Pro 15 config
+This repository contains a flake-based NixOS configuration for multiple machines. It includes:
 
-.bashrc / .vimrc / cinnamon desktop environment / helix editor configs
+- Hardware-specific modules
+- Home Manager configuration
+- System-wide packages
+- Makefile workflow for linking NixOS configuration and user dotfiles
 
-`make` sets up the symbolic links based on the location of the repo + assuming .rc's go to ~ and cinnamon/helix go into ~/.config/cinnamon and ~/.config/helix/config.toml respectively.
+Passwords are preserved on rebuilds.
 
-By default, MACHINE=legion on the Makefile argument to select which hardware-configuration.nix to backup - options are "legion" "x1nano" "tuxedo" currently.
+---
+
+## Repository Structure
+
+- `Makefile` — helper for symlinking NixOS and user config  
+- `flake.nix` — main flake configuration  
+- `configuration.nix` — common system-wide configuration  
+- `home.nix` — common Home Manager configuration  
+- `machines/<machine>/hardware-configuration.nix` — hardware-specific modules  
+
+Example tree:
+
+```
+nixos-config/
+├── Makefile
+├── flake.nix
+├── configuration.nix
+├── home.nix
+└── machines/
+    ├── tuxedo/
+    │   └── hardware-configuration.nix
+    ├── x1nano/
+    │   └── hardware-configuration.nix
+    └── legion/
+        └── hardware-configuration.nix
+```
+
+---
+
+## Initial Setup for a New Machine
+
+1. **Install NixOS from USB**  
+   - Set up partitions, swap, and install NixOS  
+   - Create the initial user manually  
+     - Username: match the machine config name (e.g., `tgval-tuxedo`)  
+     - Password: choose a strong password
+
+2. **Deploy the NixOS configuration**  
+   - Copy the `nixos` folder to the new machine  
+   - Copy the generated `hardware-configuration.nix` to the correct subfolder:
+
+```bash
+mkdir -p ~/nixos-config/machines/<machine-name>
+cp /etc/nixos/hardware-configuration.nix ~/nixos-config/machines/<machine-name>/
+```
+
+3. **Rebuild the flake**  
+
+```bash
+cd ~/nixos-config
+sudo nixos-rebuild switch --flake .#<machine-name>
+```
+
+- Applies hardware modules, Home Manager, and system packages  
+- Default configs for apps are installed
+
+4. **Apply user dotfiles**  
+
+```bash
+make link-user
+```
+
+- Deploys customized dotfiles for Cinnamon, Helix, Vim, Bash, etc.
+
+---
+
+## Makefile Targets
+
+- `make link-nixos` — links `/etc/nixos` to the repo `nixos` folder  
+- `make link-user` — links user dotfiles  
+- `make all` — runs `link-nixos` first, then `link-user`
+
+Example usage:
+
+```bash
+cd ~/nixos-config
+make all
+```
+
+---
+
+## Adding a New Machine
+
+1. Create `machines/<new-machine>/hardware-configuration.nix`  
+2. Add a new entry in `flake.nix` referencing the hardware module  
+3. Use the existing `commonHomeModule` for Home Manager  
+4. Do **not** define the user — the installation user is preserved  
+
+---
+
+## Notes
+
+- User passwords are **never stored in Git**  
+- Home Manager users must match the installation username  
+- Tuxedo laptops include extra drivers and Tuxedo Control Center  
+- Git and SSH keys can be configured independently
+
+---
+
+## Recommended Workflow
+
+1. Install NixOS and create your username/password  
+2. Deploy the `nixos` folder and copy `hardware-configuration.nix` to `machines/<machine-name>/`  
+3. Rebuild the flake for your machine  
+4. Run `make link-user` to apply dotfiles  
+5. Modify configs as needed and rebuild — passwords remain intact
+
+---
+
+## References
+
+- [NixOS Manual](https://nixos.org/manual/nixos/stable/)  
+- [Home Manager](https://nix-community.github.io/home-manager/)  
+- [NixOS Hardware Modules](https://github.com/NixOS/nixos-hardware)

@@ -130,15 +130,15 @@
     },
     "nixpkgs-master": {
       "locked": {
-        "lastModified": 1760567433,
-        "narHash": "sha256-ZENYvWtcL9UBr8vwlq7SAoqZe3lPeTgM6h2wk6PgygA=",
-        "owner": "NixOS",
+        "lastModified": 1760897006,
+        "narHash": "sha256-uIVDq6RTkJbcLMZL4B4jTLixV4TUaMtgR5eZXm3GgDY=",
+        "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "c66bbc8382f06b5029d4dddd19014652f65bd7d7",
+        "rev": "bb40b7118c7d54e2bc4d57f733d2ecf5550bdf83",
         "type": "github"
       },
       "original": {
-        "owner": "NixOS",
+        "owner": "nixos",
         "ref": "master",
         "repo": "nixpkgs",
         "type": "github"
@@ -201,7 +201,6 @@
       },
       "original": {
         "owner": "sund3RRR",
-        "ref": "master",
         "repo": "tuxedo-nixos",
         "type": "github"
       }

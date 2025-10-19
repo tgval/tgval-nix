@@ -1,108 +1,122 @@
 {
-  description = "NixOS configuration with machine-specific hardware modules and Home Manager";
+  description = "NixOS multi-machine configuration";
 
   inputs = {
-    # Stable base (NixOS 25.05)
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs-master.url = "github:nixos/nixpkgs/master";
 
-    # Home Manager (same branch as NixOS)
     home-manager = {
       url = "github:nix-community/home-manager/release-25.05";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Firefox Addons
     firefox-addons = {
       url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # VSCode Extensions overlay
     nix-vscode-extensions = {
-      url = "github:nix-community/nix-vscode-extensions";
+      url = "github:nix-community/nix-vscode-extensions/";
       inputs.nixpkgs.follows = "nixpkgs";
     };
 
-    # Master sources (unpinned by default — locked via flake.lock)
-    nixpkgs-master.url = "github:NixOS/nixpkgs/master";
-    nixos-hardware.url = "github:NixOS/nixos-hardware/master";
-    tuxedo-nixos.url = "github:sund3RRR/tuxedo-nixos/master";
+    nixos-hardware = {
+      url = "github:NixOS/nixos-hardware/master";
+    };
+
+    tuxedo-nixos = {
+      url = "github:sund3RRR/tuxedo-nixos";
+    };
   };
 
-  outputs = inputs @ {
+  outputs = {
+    self,
     nixpkgs,
     nixpkgs-master,
-    nixos-hardware,
-    tuxedo-nixos,
     home-manager,
     firefox-addons,
     nix-vscode-extensions,
+    nixos-hardware,
+    tuxedo-nixos,
     ...
   }: let
     system = "x86_64-linux";
-    username = "tgval";
 
-    # Import nixpkgs-master separately for tuxedo-drivers
-    pkgs-master = import nixpkgs-master {inherit system;};
-
-    # Overlay: pull tuxedo-drivers from nixpkgs-master
-    tuxedoDriverOverlay = final: prev: {
-      tuxedo-drivers = pkgs-master.tuxedo-drivers;
-    };
-
-    # Stable pkgs for all systems
+    # Base packages
     pkgs = import nixpkgs {
       inherit system;
       config.allowUnfree = true;
       overlays = [nix-vscode-extensions.overlays.default];
     };
 
-    # Shared Home Manager setup
-    commonHomeModule = {pkgs}: {
-      home-manager.useGlobalPkgs = true;
-      home-manager.useUserPackages = true;
-      home-manager.users.${username} = import ./home.nix;
-      home-manager.extraSpecialArgs = {
-        inherit inputs pkgs;
-        firefox-addons-allowUnfree = pkgs.callPackage firefox-addons {};
-      };
-      home-manager.backupFileExtension = "bu";
+    pkgs-master = import nixpkgs-master {
+      inherit system;
+      config.allowUnfree = true;
     };
+
+    # Build firefox-addons once for all machines
+    firefox-addons-allowUnfree = pkgs.callPackage firefox-addons {};
+
+    # Function to create a nixosSystem per machine
+    mkMachine = {
+      username,
+      hwModule,
+      extraModules ? [],
+    }:
+      nixpkgs.lib.nixosSystem {
+        inherit system;
+        modules =
+          [
+            ./configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.${username} = import ./home.nix {
+                inherit pkgs firefox-addons-allowUnfree;
+              };
+            }
+            hwModule
+          ]
+          ++ extraModules;
+      };
   in {
     nixosConfigurations = {
-      # 🖥️ Tuxedo laptop (master tuxedo-drivers + tuxedo-control-center)
-      tgval-tuxedo = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          ./configuration.nix
-          nixos-hardware.nixosModules.tuxedo
+      # Tuxedo Laptop
+      tgval-tuxedo = mkMachine {
+        username = "tgval-tuxedo";
+        hwModule = ./machines/tuxedo/hardware-configuration.nix;
+        extraModules = [
+          nixos-hardware.nixosModules.tuxedo-infinitybook-pro14-gen9-amd
+
+          # Tuxedo drivers overlay from nixpkgs-master
+          ({...}: {
+            nixpkgs.overlays = [
+              (final: prev: {
+                tuxedo-drivers =
+                  pkgs-master.callPackage
+                  (pkgs-master + "/pkgs/os-specific/linux/tuxedo-drivers") {};
+              })
+            ];
+          })
+
+          # Tuxedo Control Center
           tuxedo-nixos.nixosModules.tuxedo-control-center
-          home-manager.nixosModules.home-manager
-          (commonHomeModule {inherit pkgs;})
-        ];
-        # Add overlay only for tuxedo
-        nixpkgs.overlays = [tuxedoDriverOverlay];
-      };
-
-      # 💻 Lenovo ThinkPad X1 Nano
-      tgval-x1nano = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          ./configuration.nix
-          nixos-hardware.nixosModules.lenovo-thinkpad-x1-nano
-          home-manager.nixosModules.home-manager
-          (commonHomeModule {inherit pkgs;})
         ];
       };
 
-      # 🎮 Lenovo Legion (no special hardware module)
-      tgval-legion = nixpkgs.lib.nixosSystem {
-        inherit system;
-        modules = [
-          ./configuration.nix
-          home-manager.nixosModules.home-manager
-          (commonHomeModule {inherit pkgs;})
-        ];
+      # Lenovo ThinkPad X1 Nano Gen1
+      tgval-x1nano = mkMachine {
+        username = "tgval-x1nano";
+        hwModule = ./machines/x1nano/hardware-configuration.nix;
+        extraModules = [nixos-hardware.nixosModules.lenovo-thinkpad-x1-nano-gen1];
+      };
+
+      # Lenovo Legion
+      tgval-legion = mkMachine {
+        username = "tgval";
+        hwModule = ./machines/legion/hardware-configuration.nix;
+        extraModules = [];
       };
     };
   };

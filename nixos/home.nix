@@ -1,12 +1,8 @@
 {
-  config,
   pkgs,
-  inputs,
   firefox-addons-allowUnfree,
   ...
-}:
-
-{
+}: {
   home.username = "tgval";
   home.homeDirectory = "/home/tgval";
 
@@ -146,7 +142,7 @@
           ];
 
           icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-          definedAliases = [ "@np" ];
+          definedAliases = ["@np"];
         };
       };
       search.force = true;
@@ -156,7 +152,7 @@
         settings = [
           {
             name = "wikipedia";
-            tags = [ "wiki" ];
+            tags = ["wiki"];
             keyword = "wiki";
             url = "https://en.wikipedia.org/wiki/Special:Search?search=%s&go=Go";
           }

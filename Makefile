@@ -1,17 +1,19 @@
-# Makefile — absolute symlinks for dotfiles, helix, cinnamon, and per-machine NixOS hardware config
+# Makefile — symlinks for NixOS configuration and user dotfiles
 
 # Automatically determine the repo directory (this Makefile's location)
 GIT_DIR := $(realpath $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 
-# Default machine (can be overridden)
-MACHINE ?= legion
+# Default target: run both in order
+all: link-nixos link-user
 
-# Default target
-all: link
+# Link NixOS configuration
+link-nixos:
+	@echo "Linking NixOS configuration to /etc/nixos..."
+	sudo ln -sfn $(GIT_DIR)/nixos /etc/nixos
+	@echo "NixOS configuration linked successfully."
 
-link:
-	@echo "Using GIT_DIR: $(GIT_DIR)"
-	@echo "Setting up configuration for machine: $(MACHINE)"
+# Link user dotfiles (cinnamon, helix, vim, bash)
+link-user:
 	@echo "Linking user configuration files..."
 	mkdir -p $(HOME)/.config/cinnamon
 	ln -sfn $(GIT_DIR)/cinnamon $(HOME)/.config/cinnamon
@@ -19,14 +21,6 @@ link:
 	ln -sfn $(GIT_DIR)/.bashrc $(HOME)/.bashrc
 	mkdir -p $(HOME)/.config/helix
 	ln -sfn $(GIT_DIR)/helix-config.toml $(HOME)/.config/helix/config.toml
+	@echo "User dotfiles linked successfully."
 
-	@echo "Linking NixOS configuration..."
-	sudo ln -sfn $(GIT_DIR)/nixos /etc/nixos
-
-	@echo "Linking hardware configuration for machine $(MACHINE)..."
-	sudo ln -sfn $(GIT_DIR)/machines/$(MACHINE)/hardware-configuration.nix /etc/nixos/hardware-configuration.nix
-
-	@echo "All symlinks created successfully."
-
-.PHONY: all link
-
+.PHONY: all link-nixos link-user

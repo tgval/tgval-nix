@@ -1,1 +1,0 @@
-/home/tgval/git/tgval-nix/machines/legion/hardware-configuration.nix

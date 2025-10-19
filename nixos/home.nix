@@ -6,6 +6,9 @@
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
+    gh
+    gh-notify
+    gh-contribs
     # archives
     zip
     xz

@@ -79,6 +79,7 @@
             hwModule
           ]
           ++ extraModules;
+        specialArgs = { localUser = username;};
       };
   in {
     nixosConfigurations = {

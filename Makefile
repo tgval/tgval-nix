@@ -15,10 +15,8 @@ link-nixos:
 # Link user dotfiles (cinnamon, helix, vim, bash)
 link-user:
 	@echo "Linking user configuration files..."
-	mkdir -p $(HOME)/.config/cinnamon
-	ln -sfn $(GIT_DIR)/cinnamon $(HOME)/.config/cinnamon
-	ln -sfn $(GIT_DIR)/.vimrc $(HOME)/.vimrc
-	ln -sfn $(GIT_DIR)/.bashrc $(HOME)/.bashrc
+	ln -sfn $(GIT_DIR)/cinnamon $(HOME)/.config/
+	ln -sfn $(GIT_DIR)/.vimrc $(HOME)/.vimrc	
 	mkdir -p $(HOME)/.config/helix
 	ln -sfn $(GIT_DIR)/helix-config.toml $(HOME)/.config/helix/config.toml
 	@echo "User dotfiles linked successfully."

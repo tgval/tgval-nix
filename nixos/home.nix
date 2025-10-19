@@ -3,8 +3,6 @@
   firefox-addons-allowUnfree,
   ...
 }: {
-  home.username = "tgval";
-  home.homeDirectory = "/home/tgval";
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
@@ -103,8 +101,8 @@
   # basic configuration of git, please change to your own
   programs.git = {
     enable = true;
-    userName = "Tiago Valentim";
-    userEmail = "tiagovlt@hotmail.com";
+    userName = "tgval";
+    userEmail = "tiago.valentim@protonmail.com";
   };
 
   programs.bash = {

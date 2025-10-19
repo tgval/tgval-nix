@@ -1,6 +1,8 @@
 {
   config,
   pkgs,
+  lib,
+  localUser,
   ...
 }: {
   # Bootloader
@@ -9,7 +11,7 @@
   boot.loader.efi.canTouchEfiVariables = true;
 
   # Networking
-  networking.hostName = "tgval"; # Override via flake if desired
+  networking.hostName = "${localUser}"; # Override via flake if desired
   networking.networkmanager.enable = true;
 
   # Time and locale
@@ -50,7 +52,7 @@
 
   # Users
   # NOTE: user 'tgval' must already exist on install; passwords are preserved
-  users.users.tgval = {
+  users.users.${localUser} = {
     isNormalUser = true;
     description = "tgval";
     extraGroups = ["networkmanager" "wheel" "docker"];
@@ -60,7 +62,7 @@
   virtualisation.docker.rootless.enable = true;
   virtualisation.docker.rootless.setSocketVariable = true;
   virtualisation.docker.daemon.settings = {
-    data-root = "/home/tgval/docker";
+    data-root = "/home/${localUser}/docker";
     usarland-proxy = false;
   };
 

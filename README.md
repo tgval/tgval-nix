@@ -46,9 +46,12 @@ nixos-config/
      - Username: match the machine config name (e.g., `tgval-tuxedo`)  
      - Password: choose a strong password
 
-2. **Deploy the NixOS configuration**  
-   - Copy the `nixos` folder to the new machine  
-   - Copy the generated `hardware-configuration.nix` to the correct subfolder:
+2. **Deploy the NixOS configuration**
+   - Ensure `git and `gnumake` are installed on the initial installation
+   - Backup the generated hardware-configuration.nix (or regenerate one with nixos-generate-config)
+   - Copy the backed/generated `hardware-configuration.nix` to the correct subfolder on `nixos/machines`:
+   - Delete the original /etc/nixos folder
+   - Run `make link-nixos`
 
 ```bash
 mkdir -p ~/nixos-config/machines/<machine-name>
@@ -65,13 +68,18 @@ sudo nixos-rebuild switch --flake .#<machine-name>
 - Applies hardware modules, Home Manager, and system packages  
 - Default configs for apps are installed
 
+Reboot afterwards
+
 4. **Apply user dotfiles**  
 
+This assumes Cinnamon as the desktop environment, backup the original configuration on ~/.config/cinnamon or delete it straight away.
 ```bash
 make link-user
 ```
 
-- Deploys customized dotfiles for Cinnamon, Helix, Vim, Bash, etc.
+- Deploys customized dotfiles for Cinnamon, Helix, etc.
+
+Reboot for the cinnamon config to be applied
 
 ---
 
@@ -80,13 +88,6 @@ make link-user
 - `make link-nixos` — links `/etc/nixos` to the repo `nixos` folder  
 - `make link-user` — links user dotfiles  
 - `make all` — runs `link-nixos` first, then `link-user`
-
-Example usage:
-
-```bash
-cd ~/nixos-config
-make all
-```
 
 ---
 

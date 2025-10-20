@@ -102,7 +102,7 @@
           })
 
           # Tuxedo Control Center
-          tuxedo-nixos.nixosModules.tuxedo-control-center
+          tuxedo-nixos.nixosModules.default
         ];
       };
 

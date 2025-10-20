@@ -14,6 +14,9 @@
   networking.hostName = "${localUser}"; # Override via flake if desired
   networking.networkmanager.enable = true;
 
+  # Tuxedo control center flag
+  hardware.tuxedo-control-center.enable = "${localUser}" == "tgval-tuxedo";
+
   # Time and locale
   time.timeZone = "Europe/London";
   i18n.defaultLocale = "en_GB.UTF-8";

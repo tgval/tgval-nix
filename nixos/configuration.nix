@@ -53,12 +53,44 @@
     pulse.enable = true;
   };
 
+  security.pam.loginLimits = [
+    {
+      domain = "@audio";
+      item = "memlock";
+      type = "-";
+      value = "unlimited";
+    }
+    {
+      domain = "@audio";
+      item = "rtprio";
+      type = "-";
+      value = "99";
+    }
+    {
+      domain = "@audio";
+      item = "nofile";
+      type = "soft";
+      value = "99999";
+    }
+    {
+      domain = "@audio";
+      item = "nofile";
+      type = "hard";
+      value = "99999";
+    }
+  ];
+
+  services.udev.extraRules = ''
+    KERNEL=="rtc0", GROUP="audio"
+    KERNEL=="hpet", GROUP="audio"
+  '';
+
   # Users
   # NOTE: user 'tgval' must already exist on install; passwords are preserved
   users.users.${localUser} = {
     isNormalUser = true;
     description = "tgval";
-    extraGroups = ["networkmanager" "wheel" "docker"];
+    extraGroups = ["networkmanager" "wheel" "docker" "audio"];
   };
 
   # Docker

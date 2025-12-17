@@ -2,7 +2,8 @@
   pkgs,
   firefox-addons-allowUnfree,
   ...
-}: {
+}:
+{
 
   # Packages that should be installed to the user profile.
   home.packages = with pkgs; [
@@ -77,7 +78,7 @@
     qgit
     docker
     sqlite
-    python3Full
+    python315
     poetry
     plantuml
     plantuml-server
@@ -99,13 +100,15 @@
     gemini-cli
     nextcloud-client
     gnumake
+    dxvk
+    pam
   ];
 
   # basic configuration of git, please change to your own
   programs.git = {
     enable = true;
-    userName = "tgval";
-    userEmail = "tiago.valentim@protonmail.com";
+    settings.user.name = "tgval";
+    settings.user.email = "tiago.valentim@protonmail.com";
   };
 
   programs.bash = {
@@ -143,7 +146,7 @@
           ];
 
           icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
-          definedAliases = ["@np"];
+          definedAliases = [ "@np" ];
         };
       };
       search.force = true;
@@ -153,7 +156,7 @@
         settings = [
           {
             name = "wikipedia";
-            tags = ["wiki"];
+            tags = [ "wiki" ];
             keyword = "wiki";
             url = "https://en.wikipedia.org/wiki/Special:Search?search=%s&go=Go";
           }
@@ -229,6 +232,7 @@
       ];
     };
   };
+
   # This value determines the home Manager release that your
   # configuration is compatible with. This helps avoid breakage
   # when a new home Manager release introduces backwards
@@ -237,5 +241,5 @@
   # You can update home Manager without changing this value. See
   # the home Manager release notes for a list of state version
   # changes in each release.
-  home.stateVersion = "25.05";
+  home.stateVersion = "25.11";
 }

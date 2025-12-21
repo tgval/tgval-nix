@@ -47,10 +47,22 @@
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
-    enable = true;
-    alsa.enable = true;
-    alsa.support32Bit = true;
-    pulse.enable = true;
+      enable = true;
+      audio.enable = true;
+      pulse.enable = true;
+      alsa = {
+        enable = true;
+        support32Bit = true;
+      };
+      jack.enable = true;
+      extraConfig.pipewire."92-low-latency" = {
+    	"context.properties" = {
+      		"default.clock.rate" = 44000;
+      		"default.clock.quantum" = 64;
+      		"default.clock.min-quantum" = 64;
+      		"default.clock.max-quantum" = 128;
+      };
+  };
   };
 
   security.pam.loginLimits = [

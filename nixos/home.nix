@@ -100,8 +100,9 @@
     gemini-cli
     nextcloud-client
     gnumake
-    dxvk
+    dxvk.out
     pam
+    pipewire
   ];
 
   # basic configuration of git, please change to your own
